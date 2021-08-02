@@ -124,7 +124,7 @@ switch ($accion) {
         $propietario = new propietario();
 
         if (!is_numeric($id)) $id = null;
-        $propietario->envioMasivoEmail('Servicio Dichirolamo en línea', '../plantillas/clave-servicio.html', $id);
+        $propietario->envioMasivoEmail('Servicio Condominio en línea', '../plantillas/clave-servicio.html', $id);
         break; // </editor-fold>
         
     // <editor-fold defaultstate="collapsed" desc="propietarios actualizados">
