@@ -240,7 +240,7 @@ class propietario extends db implements crud  {
                 // enviamos el email a los destinatarios
                 $resultado='';
                 $n=1;
-                $mail = new mailto(SMTP);
+                $mail = new mailto(mailPHP);
                 foreach ($propieatarios['data'] as $propietario) {
                     
                     $contenido = $contenido_original;
