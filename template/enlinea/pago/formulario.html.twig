@@ -1,0 +1,672 @@
+{% extends 'layout/fluid.html.twig' %}
+{# JAVASCRIPT #}
+{% block head %}
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta charset="utf-8" />
+{{ parent() }}
+{% endblock %}
+{# TITULO #}
+{% block titulo accion|title ~ ' Pago de Codominio' %}
+{# CONTENIDO #}
+{% block contenido %}
+<div id="breadcrumbs" class="breadcrumbs breadcrumbs-fixed">
+<script type="text/javascript">
+try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+</script>
+<ul class="breadcrumb">
+<li>
+<i class="ace-icon fa fa-home home-icon"></i>
+<a href="{{constant('URL_SISTEMA')}}">{{ constant("NOMBRE_APLICACION")}}</a>
+</li>
+<li class="active">Pago de Condominio</li>
+</ul><!-- /.breadcrumb -->
+<div id="nav-search" class="nav-search">
+<form class="form-search">
+<span class="input-icon">
+<input type="text" autocomplete="off" id="nav-search-input" class="nav-search-input" placeholder="Buscar...">
+<i class="ace-icon fa fa-search nav-search-icon"></i>
+</span>
+</form>
+</div><!-- /.nav-search -->
+</div>
+<div class="page-content">
+<div class="page-content-area">
+<div class="page-header">
+<h1>
+Reporte pago
+<small>
+<i class="ace-icon fa fa-angle-double-right"></i>
+de condominio
+</small>
+</h1>
+</div><!-- /.page-header -->
+<div class="row">
+<div class="col-xs-12">
+<!-- PAGE CONTENT BEGINS -->
+<div class="widget-box">
+<div class="widget-header widget-header-blue widget-header-flat">
+<h4 class="widget-title lighter">Asistente pago de condominio</h4>
+</div>
+<div class="widget-body">
+<div class="widget-main">
+<div id="fuelux-wizard" data-target="#step-container">
+    <ul class="wizard-steps">
+    <li data-target="#step1" class="active">
+    <span class="step">1</span>
+    <span class="title">Selección de Facturas</span>
+    </li>
+    <li data-target="#step2">
+    <span class="step">2</span>
+    <span class="title">Información del Pago</span>
+    </li>
+    <li data-target="#step3">
+    <span class="step">3</span>
+    <span class="title">Resultado</span>
+    </li>
+    </ul>
+</div>
+<hr />
+<form class="form-horizontal hide" id="validation-form"  enctype="multipart/form-data">
+<div class="step-content pos-rel" id="step-container">
+    <div class="step-pane active" id="step1">
+        
+        {% if cuentas is empty %}
+        <div class="alert alert-danger">
+        <strong><i class="ace-icon fa fa-times"></i> Atención: </strong> Estimado propietario(a) usted 
+        no tiene recibos pendiente de pago.
+        </div>
+        {% else %}
+        {% set counter = 0 %}
+        {% set moneda = 'Bs' %}
+        {% for cuenta in cuentas %}
+        <div class="form-group">
+        <div class="col-xs-12 col-sm-9">
+        <div class="clearfix">
+        <table  class="table table-bordered table-striped responsive-utilities">
+            <caption style="text-align: left;"><h5>{{cuenta.inmueble.nombre_inmueble}}<br> 
+                    {% set moneda = cuenta.inmueble.moneda %}
+                    {{cuenta.inmueble.unidad}}: {{cuenta.propiedades.apto}}<br>
+                Deuda Total:
+                {% if cuenta.propiedades.meses_pendiente > constant('MESES_COBRANZA') %}
+                        ---
+                {% else %}
+                    {{moneda}}{{format_number(cuenta.propiedades.deuda_total)}}
+                {% endif %}
+            </h5>
+            <p class="text-info">Marque las facturas a cancelar<p>
+            </caption>
+            <thead>
+                <tr>
+                    <th style="text-align:center">PAGAR</th>
+                    <th style="text-align:center" class="hidden-phone">Nº FACTURA</th>
+                    <th style="text-align:center">PERIODO</th>
+                    <th style="text-align:center" class="hidden-phone">FACTURADO</th>
+                    <th style="text-align:center" class="hidden-phone">ABONADO</th>
+                    <th style="text-align:center">SALDO {{moneda}}</th>
+                    {%if cuenta.inmueble.facturacion_usd %}
+                    <th style="text-align: center">SALDO $</th>
+                    {%endif%}
+                    <th style="text-align: center">ESTATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for factura in cuenta.cuentas %}
+            <tr>
+                <td style="text-align: center">
+                <input type="checkbox" name="id[]" value="{{counter }}" {{factura.pagado > 0? "disabled=\'disabled\'":"" }}>
+                </td>
+                <td style="text-align: center" class="hidden-phone">
+                <input type="hidden" name="id_inmueble[]" value="{{factura.id_inmueble}}" />
+                <input type="hidden" name="id_apto[]" value="{{factura.apto}}" />
+                <input type="hidden" name="periodo[]" value="{{factura.periodo}}" />
+                <input type="hidden" name="facturas[]" value="{{factura.numero_factura}}" />
+                {% if factura.aviso %}
+                <a href="{{ constant('URL_SISTEMA')}}/avisos/ver/{{factura.numero_factura}}" target="_blank">{{factura.numero_factura}}</a>
+                {% else %}
+                <abbr title="Aviso de Cobro NO DISPONIBLE" class="initialism">{{factura.numero_factura}}</abbr>
+                {%endif %}
+                </td>
+                <td style="text-align: center">{{factura.periodo | date("m-Y") | upper}}</td>
+                <td class="hidden-phone"><span class="pull-right">{{format_number(factura.facturado)}}</span></td>
+                <td class="hidden-phone"><span class="pull-right">{{format_number(factura.abonado)}}</span></td>
+                <td>
+                    <input type="hidden" name="montos[]" value="{{factura.facturado - factura.abonado}}" />
+                    <span class="pull-right">
+                    {{ format_number(factura.facturado - factura.abonado) }}
+                    </span>
+                </td>
+                {%if cuenta.inmueble.facturacion_usd %}
+                <td><span class="pull-right">{{format_number(factura.facturado_usd)}}</span></td>
+                {%endif%}
+                <td>
+                {%if factura.pagado == 0%}
+                    <span class="label label-sm label-success arrowed arrowed-in-right">Pendiente</span>
+                {%else%}
+                    <a href="javascript:void(0);" data-html="true" data-original-title="{{factura.pagado_detalle}}" data-placement="top" rel="tooltip" class="label label-sm label-warning arrowed arrowed-in-right">Por procesar</a> 
+                {%endif%}
+                </td>
+                </tr>
+        {% set counter = counter + 1 %}
+        {% endfor %}
+            </tbody>
+        </table>
+        <span class="label label-warning">
+        &nbsp;
+        </span> <small><strong>Por procesar</strong> Pago ya reportado, a la espera que el administrador lo aplique a su cuenta de condominio.</small><br>
+        <span class="label label-success">
+        &nbsp;
+        </span> <small><strong>Pendiente</strong> A la espera que usted reporte el pago a través de esta página web.</small>
+        </div></div></div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="step-pane" id="step2">
+        {% if cuenta.propiedades.meses_pendiente > constant('MESES_COBRANZA') %}
+            <div class="alert alert-error" style="font-size: 120%">Estimado propietario(a) {{session.usuario.nombre}}<br/><strong>Le agradecemos ponerse en contacto con el departamento de cobranzas</strong>.</div>
+            {% else %}
+                {{form.input('hidden','','','estatus','P', false)}}
+                {{form.input('hidden','','','enviado','0', false)}}
+                {{form.input('hidden','','','telefono','', false)}}
+                <div class="form-group">
+                <label class="control-label col-xs-12 col-sm-3 no-padding-right">Medio de Pago</label>
+                <div class="col-xs-12 col-sm-9">
+                <select name="tipo_pago" id="tipo_pago">
+                <!--option value="D">Depósito</option-->
+                <option value="T">Transferencia</option>
+                {#%if cuentas[0].inmueble.id == '1001'%#}
+                <!--option selected value="TDD">T.Débito</option-->
+                <!--option value="TDC">T.Crédito</option-->
+                {#%endif%#}
+                </select>
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="banco_origen" class="control-label col-xs-12 col-sm-3 no-padding-right">Banco Origen</label>
+                <div class="col-xs-12 col-sm-9"><div class="clearfix">
+                <select name="banco_origen" class="ignore">
+                    <option value="" >---Seleccione---</option>
+                    {% for banco in bancos %}
+                    <option value="{{banco.nombre}}" data-bind="{{banco.nombre}}">{{banco.nombre}}</option>
+                    {% endfor %}
+                </select>
+                {#{form.input('text','input-large mayuscula ignore','banco_origen','banco_origen','', true)}#}
+                </div>
+                </div>
+                </div>
+                <div class="form-group">
+                <label id="num_docu" for="numero_documento" class="control-label col-xs-12 col-sm-3 no-padding-right">Referencia</label>
+                <div class="col-xs-12 col-sm-9">
+                <div class="clearfix">
+                {{ form.input('text','input-medium ignore','numero_documento','numero_documento','', false) }}
+                </div>
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="banco_destino" class="control-label col-xs-12 col-sm-3 no-padding-right">Banco Destino</label>
+                <div class="col-xs-12 col-sm-9"><div class="clearfix">
+                {% if cuentas[0].inmueble.cuentas_bancarias|length > 1 %}
+                <select name="banco_destino" class="ignore">
+                {% set dato = '' %}
+                {% for cta in cuentas[0].inmueble.cuentas_bancarias %}
+                    {% if dato != cta.banco %}
+                        <option value="{{cta.banco}}" data-bind="{{cta.numero_cuenta}}">{{cta.banco}}</option>
+                    {% endif %}
+                    {% set dato = cta.banco %}
+                {% endfor %}
+                </select>
+                {% else %}
+                {{ form.input('text','input-large mayuscula ignore','banco_destino','banco_destino',cuentas[0].inmueble.banco, false) }}
+                {% endif %}
+                </div></div>
+                </div>
+                <div class="form-group">
+                <label for="numero_cuenta" class="control-label col-xs-12 col-sm-3 no-padding-right">Cuenta Destino</label>
+                <div class="col-xs-12 col-sm-9">
+                <div class="clearfix">
+                {% if cuentas[0].inmueble.cuentas_bancarias|length > 1 %}
+                <select name="numero_cuenta" class="ignore">
+                {% set dato = '' %}
+                {% for cta in cuentas[0].inmueble.cuentas_bancarias %}
+                    {% if dato != cta.numero_cuenta %}
+                        <option value="{{cta.numero_cuenta}}" data-bind="{{cta.banco}}">{{cta.numero_cuenta}}</option>
+                    {% endif %}
+                    {% set dato = cta.numero_cuenta %}
+                {% endfor %}
+                </select>
+                {% else%}
+                {{ form.input('text','input-large ignore','numero_cuenta','numero_cuenta',cuentas[0].inmueble.numero_cuenta, false) }}
+                {% endif %}
+                </div>
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="fecha_documento" class="control-label col-xs-12 col-sm-3 no-padding-right">Fecha Pago</label>
+                <div class="col-xs-12 col-sm-9">
+                <div class="input-group">
+                <span class="input-group-addon">
+                <i class="fa fa-calendar bigger-110"></i>
+                </span>
+                <input class="date-picker input-small ignore" id="fecha_documento" name="fecha_documento" type="text" data-date-format="dd-mm-yyyy" />
+                </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                <label for="monto" class="control-label col-xs-12 col-sm-3 no-padding-right">Monto</label>
+                <div class="col-xs-12 col-sm-9">
+                <div class="input-group">
+                <span class="input-group-addon">{{moneda}}.</span>
+                <input type="text" class="input-medium input-prepend input-append ignore" name="monto" id="monto" value="0,00" readonly="" />
+                {#{form.input('text','input-medium input-prepend input-append ignore','monto','monto','0,00', false)}#}
+                </div>
+                </div>
+                </div>
+                <div class="form-group">
+                <label for="email" class="control-label col-xs-12 col-sm-3 no-padding-right">e-mail Contacto</label>
+                <div class="col-xs-12 col-sm-9">
+                <div class="input-group">
+                <span class="input-group-addon">@</span>
+                {{ form.input('text','email input-xlarge input-prepend input-append ignore','email','email',usuario.email,false) }}
+                </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right" for="archivo"> Soporte de pago </label>
+                <div class="col-xs-12 col-sm-9">
+                    <input id="soporte" name="soporte" type="file" class="ignore">
+                    <span class="help-block">Solo soporta Imágenes y archivos .pdf.</span>
+                </div>
+                </div>
+{% endif %}
+    </div>
+    <div class="step-pane" id="step3">
+        <div  id="resultado">
+            <h3 class="header smaller lighter grey">
+            <i class="ace-icon fa fa-spinner fa-spin orange bigger-125"></i>
+            Estamos procesando la información......
+            </h3>
+        </div>
+    </div>
+</div>
+</form>
+<hr />
+<div class="wizard-actions">
+<button class="btn btn-prev">
+<i class="ace-icon fa fa-arrow-left"></i>
+Regresar
+</button>
+
+<button class="btn btn-success btn-next" data-last="Finalizar">
+Continuar
+<i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+</button>
+</div>
+</div><!-- /.widget-main -->
+</div><!-- /.widget-body -->
+</div>
+<div id="modal-wizard" class="modal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header" data-target="#modal-step-contents">
+    <ul class="wizard-steps">
+        <li data-target="#modal-step1" class="active">
+            <span class="step">1</span>
+            <span class="title">Selección de facturas</span>
+        </li>
+        <li data-target="#modal-step2">
+            <span class="step">2</span>
+            <span class="title">Información de Pago</span>
+        </li>
+        <li data-target="#modal-step3">
+            <span class="step">3</span>
+            <span class="title">Payment Info</span>
+        </li>
+        <li data-target="#modal-step4">
+            <span class="step">4</span>
+            <span class="title">Other Info</span>
+        </li>
+    </ul>
+</div>
+
+<div class="modal-body step-content" id="modal-step-contents">
+<div class="step-pane active" id="modal-step1">
+<div class="center">
+<h4 class="blue">Step 1</h4>
+</div>
+</div>
+
+<div class="step-pane" id="modal-step2">
+<div class="center">
+<h4 class="blue">Step 2</h4>
+</div>
+</div>
+
+<div class="step-pane" id="modal-step3">
+<div class="center">
+<h4 class="blue">Step 3</h4>
+</div>
+</div>
+
+<div class="step-pane" id="modal-step4">
+<div class="center">
+<h4 class="blue">Step 4</h4>
+</div>
+</div>
+</div>
+
+<div class="modal-footer wizard-actions">
+<button class="btn btn-sm btn-prev">
+<i class="ace-icon fa fa-arrow-left"></i>
+Prev
+</button>
+<button class="btn btn-success btn-sm btn-next" data-last="Finish">
+Next
+<i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+</button>
+<button class="btn btn-danger btn-sm pull-left" data-dismiss="modal">
+<i class="ace-icon fa fa-times"></i>
+Cancel
+</button>
+</div>
+</div><!-- PAGE CONTENT ENDS -->
+</div><!-- /.col -->
+</div><!-- /.row -->
+</div><!-- /.page-content-area -->
+</div><!-- /.page-content -->
+</div><!-- /.main-content -->
+</div><!-- /.main-container -->
+<!-- basic scripts -->
+<!--[if !IE]> -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<!-- <![endif]-->
+<!--[if IE]>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<![endif]-->
+<!--[if !IE]> -->
+<script type="text/javascript">
+window.jQuery || document.write("<script src='assets/js/jquery.min.js'>"+"<"+"/script>");
+</script>
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+window.jQuery || document.write("<script src='assets/js/jquery1x.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+<script type="text/javascript">
+if('ontouchstart' in document.documentElement) document.write("<script src='{{ constant('ROOT')}}/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<!-- page specific plugin scripts -->
+<script src="{{ constant('ROOT')}}js/comun.js"></script>
+<script src="{{ constant('ROOT')}}js/fuelux/fuelux.wizard.min.js"></script>
+<script src="{{constant('ROOT')}}js/bootstrap-datepicker.js"></script>
+<script src="{{ constant('ROOT')}}js/jquery-validate/jquery.validate.min.js"></script>
+<script src="{{ constant('ROOT')}}js/jquery.maskedinput.min.js"></script>
+<script src="{{ constant('ROOT')}}js/select2.min.js"></script>
+
+<!-- ace scripts -->
+<script src="{{ constant('ROOT')}}js/ace-elements.min.js"></script>
+<script src="{{ constant('ROOT')}}js/ace.min.js"></script>
+
+<!-- inline scripts related to this page -->
+<script type="text/javascript">
+jQuery(function($) {
+$( "a[rel='tooltip']").tooltip({
+    show: {
+        effect: "slideDown",
+        delay: 250
+    }
+});
+        
+$("ul.nav-list li").eq(6).addClass("active");
+$('.date-picker').datepicker({
+        autoclose: true,
+        todayHighlight: true
+})
+//show datepicker when clicking on the icon
+.next().on(ace.click_event, function(){
+        $(this).prev().focus();
+});
+        
+$('#soporte').ace_file_input({
+    no_file:'No ha seleccionado un archivo...',
+    btn_choose:'Seleccionar',
+    btn_change:'Modificar',
+    droppable:false,
+    onchange:null,
+    thumbnail:false, //| true | large
+    whitelist:'pdf|png|jpg|jpeg',
+    blacklist:'exe|php',
+    allowExt:  ['jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'bmp', 'pdf'],
+    allowMime: ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/tif', 'image/tiff', 'image/bmp', 'application/pdf']
+    //onchange:''
+    //
+});
+
+$(":checkbox").click(function() {
+    var monto = 0;
+    $("input:checked").each(function() {
+        var  monto_factura = $("input[name|='montos[]']").eq($(this).val()).val();
+        monto = parseFloat(monto) + parseFloat(monto_factura);
+        //monto = parseFloat(monto) + (parseFloat($(this).closest("tr").find("td:eq(5)").text().replace(".", "").replace(",", ".")) * 100);
+    });
+    //monto = monto / 100;
+    $("#monto").val(monto.formatCurrency());
+});
+        
+$("#tipo_pago").change(function() {
+    /*if ($("#tipo_pago").val() === "TDD" || $("#tipo_pago").val() === "TDC") {
+        $("select[name='banco_origen']").val('Portal de pagos Mercantil');
+    } else {*/
+    $("select[name='banco_origen']").val('');
+    //}
+    $("select[name='banco_origen']").trigger('change');
+});
+$("select[name='banco_origen']").change(function() {
+     /*if($("select[name='banco_origen']").val()==='Portal de pagos Mercantil') {
+         $("select[name='banco_destino']").val('MERCANTIL');
+     }*/
+     /*$("select[name='banco_destino']").trigger('change');*/
+});
+
+$("select[name='banco_destino']").change(function() {
+    $("select[name='numero_cuenta']").val($("select[name='banco_destino'] option:selected").attr('data-bind'));
+});
+$("select[name='numero_cuenta']").change(function() {
+    $("select[name='banco_destino']").val($("select[name='numero_cuenta'] option:selected").attr('data-bind'));
+});
+
+$(".select2").css('width','200px').select2({allowClear:true})
+.on('change', function(){
+$(this).closest('form').validate().element($(this));
+}); 
+
+$("#tipo_pago").trigger('change');
+
+var $validation = false;
+$('#fuelux-wizard').ace_wizard({
+//step: 2 //optional argument. wizard will jump to step "2" at first
+}).on('change' , function(e, info){
+    //console.log(info.step);
+    //console.log('Validacion: ' +$validation);
+    if(info.step==2 && info.direction=='previous') {
+        $validation = false;
+    }
+    if(info.step == 1 && $validation) {
+        if(!$('#validation-form').valid()) {
+            return false;
+        }
+        $('input').removeClass("ignore");
+        $('select').removeClass("ignore");
+    }
+    if(info.step == 3 && info.direction == 'previous') {
+        $("div#resultado").removeClass();
+        $("div#resultado").html('<h3 class="header smaller lighter grey"><i class="ace-icon fa fa-spinner fa-spin orange bigger-125"></i>Estamos procesando la información......</h3>');
+    }
+    if(info.step == 2 && info.direction == 'next') {
+        /*if ($("#tipo_pago").val() === "TDD" || $("#tipo_pago").val() === "TDC") {
+            $("select[name='banco_origen']").val('Portal de pagos Mercantil');
+        }*/
+        if(!$('#validation-form').valid()) {
+            return false;
+        } else {
+            var datos = new FormData($("#validation-form")[0]);
+            
+            $.ajax({
+             url: "{{constant('URL_SISTEMA')}}/pago/guardar",
+             type: 'POST',
+             data: datos,
+             contentType:false,
+             processData:false,
+             success: function(data) {
+                var obj = jQuery.parseJSON(data);
+                $("div#resultado").addClass(obj.suceed? "alert alert-success":"alert alert-danger")
+                $("div#resultado").html(obj.mensaje);
+                $("#tab3").find("h4").html(obj.mensaje);
+             },
+             error : function () {
+                $("#tab3").find("h1").addClass("text-danger").removeClass("text-info");
+                $("#tab3").find("h1").html('<strong><i class="fa fa-lg fa-warning"></i >Ups! Error al procesar esta transacción</strong>');
+             }  
+            });
+        }
+    }
+}).on('finished', function(e) {
+$('ul.wizard-steps li').eq(2).addClass("complete");
+$('button[class*=btn-]').attr("disabled","disabled");
+$('div#resultado').removeClass();
+$('div#resultado').addClass("center");
+$('div#resultado').html('<div class="center"><h3 class="green">Gracias por usar nuestros servicios!</h3>{{ constant('NOMBRE_APLICACION')}}</div>');
+}).on('stepclick', function(e){
+//e.preventDefault();//this will prevent clicking and selecting steps
+});
+
+//jump to a step
+$('#step-jump').on('click', function() {
+var wizard = $('#fuelux-wizard').data('wizard')
+wizard.currentStep = 3;
+wizard.setState();
+})
+//determine selected step
+//wizard.selectedItem().step
+
+
+
+//hide or show the other form which requires validation
+//this is for demo only, you usullay want just one form in your application
+$validation = true;
+$('#validation-form').removeClass('hide');
+
+$('button[class*=btn-next]').attr("disabled","disabled");
+$("input:checkbox").each(function() {
+    if(!$(this).attr('disabled')) {
+        $('button.btn-next').removeAttr("disabled");
+        return false;
+    }
+});
+
+$.mask.definitions['~']='[+-]';
+$('#phone').mask('(999) 999-9999');
+
+jQuery.validator.addMethod("phone", function (value, element) {
+return this.optional(element) || /^\(\d{3}\) \d{3}\-\d{4}( x\d{1,6})?$/.test(value);
+}, "Ingrese un número telefónico válido.");
+
+$('#validation-form').validate({
+errorElement: 'div',
+errorClass: 'help-block',
+focusInvalid: false,
+ignore: ".ignore",
+rules: {
+    'id[]': {
+    required: true
+    },
+    email: {
+    required: true,
+    email:true
+    },
+    numero_documento: {
+    required: true,
+    digits : true
+    },
+    numero_cuenta: {
+    required: true
+    },
+    fecha_documento: {
+    required: true
+    },
+    banco_destino: {
+    required:true
+    },
+    monto: {
+    required:true,
+    number:true,
+    min: 0.01
+    },
+    banco_origen : { required:true },
+    soporte : {required:true}
+},
+messages: {
+    email: {
+    required: "Ingrese su dirección de correo electrónico.",
+    email: "Ingrese un email válido."
+    },
+    monto : {
+    required: "Debe ingresar el monto",
+    number: "Debe introducir una cantidad válida",
+    min: "El monto debe ser mayor que 1"
+    },
+    numero_documento : {
+        required: "Ingrese un número de referencia",
+        digits: 'Debe ingresar solo números'
+    },
+    numero_cuenta: "Ingrese el número de cuenta",
+    fecha_documento: "Ingrese la fecha del depósito/transferencia",
+    banco_destino: "Ingrese el nombre del banco donde hizo el " + $('#tipo_pago').val() + ".",
+    "id[]": "Debe seleccionar por lo menos una factura para continuar",
+    banco_origen :"Seleccione un banco de origen",
+    soporte: 'Es necesario que adjunte el soporte del pago'
+},
+highlight: function (e) {
+$(e).closest('.form-group').removeClass('has-info').addClass('has-error');
+},
+success: function (e) {
+$(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
+$(e).remove();
+},
+errorPlacement: function (error, element) {
+if(element.is('input[type=checkbox]') || element.is('input[type=radio]')) {
+    //$('div[class*="form-group has-error"]').html(error);
+    var controls = element.closest('div[class*="col-"]');
+    controls.append(error);
+}
+else if(element.is('.select2')) {
+error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+}
+else if(element.is('.chosen-select')) {
+error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+}
+else error.insertAfter(element.parent());
+},
+
+submitHandler: function (form) {
+},
+invalidHandler: function (form) {
+}
+});
+
+$('#modal-wizard .modal-header').ace_wizard();
+$('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
+
+
+$('#date').datepicker({autoclose:true}).on('changeDate', function(ev) {
+$(this).closest('form').validate().element($(this));
+});
+/*
+$('#mychosen').chosen().on('change', function(ev) {
+$(this).closest('form').validate().element($(this));
+});*/
+});
+</script>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'layout/intra.html.twig'%}
+{% block titulo %}Publicar Cartelera{% endblock %}
+{% block contenido %}
+<div id="breadcrumbs" class="breadcrumbs breadcrumbs-fixed">
+<script type="text/javascript">
+try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+</script>
+<ul class="breadcrumb">
+<li>
+<i class="ace-icon fa fa-home home-icon"></i>
+<a href="{{constant('ROOT')}}intranet.php">Intranet</a>
+</li>
+<li class="active">Publicar en Cartelera</li>
+</ul><!-- /.breadcrumb -->
+<div id="nav-search" class="nav-search">
+<form class="form-search">
+<span class="input-icon">
+<input type="text" autocomplete="off" id="nav-search-input" class="nav-search-input" placeholder="Buscar ...">
+<i class="ace-icon fa fa-search nav-search-icon"></i>
+</span>
+</form>
+</div><!-- /.nav-search -->
+</div>
+<div class="page-content">
+
+<div class="page-header">
+<h1>
+Publicar en Cartelera
+</h1>
+</div>
+
+<div class="row">
+<div class="col-xs-12">
+<div id="resultado" class="alert hidden"></div>
+<!-- PAGE CONTENT BEGINS -->
+<form id="publicacion" class="form-horizontal" role="form"  enctype="multipart/form-data">
+
+<div class="form-group">
+<label class="col-sm-3 control-label no-padding-right" for="form-field-1-1"> Título Publicación </label>
+
+<div class="col-sm-9">
+<input id="titulo" name="titulo" placeholder="Ingrese el título de su publicación" class="form-control" type="text">
+</div>
+</div>
+
+<div class="space-4"></div>
+
+<div class="form-group">
+<label class="col-sm-3 control-label no-padding-right" for="form-field-2"> Condominio </label>
+
+<div class="col-sm-9">
+<select class="form-control" id="inmueble" multiple="multiple" name="inmueble[]">
+    {% for item in condominios %}
+        {% if item.id != 'DEMO' %}
+            <option value="{{item.id}}">{{item.nombre_inmueble}}</option>
+        {% endif %}
+    {% endfor %}
+</select>
+
+</div>
+</div>
+
+<div class="space-4"></div>
+
+<div class="form-group">
+<label class="col-sm-3 control-label no-padding-right" for="archivo"> Archivo </label>
+<div class="col-sm-9">
+<input id="archivo" name="archivo" type="file">
+</div>
+</div>
+
+<div class="clearfix form-actions">
+<div class="col-md-offset-3 col-md-9">
+<button class="btn btn-info" type="submit">
+    <i class="ace-icon fa fa-check bigger-110"></i>
+    Publicar
+</button>
+
+&nbsp; &nbsp; &nbsp;
+<button class="btn" type="reset">
+    <i class="ace-icon fa fa-undo bigger-110"></i>
+    Limpiar
+</button>
+</div>
+</div>
+
+<div class="hr hr-24"></div>
+
+</form>
+</div><!-- /.col -->
+</div>
+</div>
+
+{% endblock %}
+{% block js %}
+{{ parent()}}
+<script src="{{constant('ROOT')}}js/jquery.inputlimiter.min.js"></script>
+<!--script src="{{constant('ROOT')}}js/chosen.jquery.min.js"></script-->
+<script src="{{constant('ROOT')}}js/jquery-validate/jquery.validate.min.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+
+$('textarea.limited').inputlimiter({
+    remText: '%n character%s remaining...',
+    limitText: 'max allowed : %n.'
+});
+
+$('button[type=reset]').on('click', function(){
+$('#archivo').ace_file_input('reset_input'); 
+});
+$('#archivo').ace_file_input({
+    no_file:'No ha seleccionado un archivo...',
+    btn_choose:'Seleccionar',
+    btn_change:'Modificar',
+    droppable:false,
+    onchange:null,
+    thumbnail:false //| true | large
+    //whitelist:'gif|png|jpg|jpeg'
+    //blacklist:'exe|php'
+    //onchange:''
+    //
+});
+
+$(document).one('ajaxloadstart.page', function(e) {
+    autosize.destroy('textarea[class*=autosize]')
+
+    $('.limiterBox,.autosizejs').remove();
+    $('.daterangepicker.dropdown-menu,.colorpicker.dropdown-menu,.bootstrap-datetimepicker-widget.dropdown-menu').remove();
+});
+
+$("#publicacion").validate({
+submitHandler: function(form) {
+var data = new FormData($("#publicacion")[0]);
+$.ajax({
+type: "POST",
+url: "{{constant("ROOT")}}intranet/?accion=guardar-cartelera",
+dataType: "json",
+data: data,
+contentType:false,
+processData:false,
+beforeSend: function() {
+$(".btn").attr("disabled","disabled");
+$("div#fallo").addClass("hidden");
+},
+success: function(data) {
+$(".btn").removeAttr("disabled");
+if (data.suceed === true) {
+    $("#resultado").html(data.mensaje).removeClass("alert-danger").addClass("alert-success").removeClass("hidden");
+    form.reset();
+    $('#archivo').ace_file_input('reset_input');
+} else {
+    $("#resultado").removeClass("alert-success").addClass("alert-danger").removeClass("hidden");
+}
+},
+error: function() {
+    $("#resultado").html('<button type="button" class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button><strong><i class="ace-icon fa fa-times"></i> Ups! Ha ocurrido un error durante el proceso.</strong> Por favor intente más tarde.').removeClass("hidden").addClass("alert-danger").removeClass("alert-success");
+    $(".btn").removeAttr("disabled");
+}
+});
+},				
+// debug: true,
+errorPlacement: function(error, element) {
+if (element.is('input[type=file]')) {
+    error.insertAfter($(element).closest('label'));
+} else {
+    error.insertAfter(element);
+}
+},
+errorElement: 'div',
+errorClass: "help-block",
+onkeyup: false,
+onclick: false,
+rules: {
+titulo: {required: true},
+'inmueble[]': {required:true},
+archivo: {required:true}
+},
+messages: {
+titulo: {
+required: "Por favor, ingrese el título de su publicación"
+},
+'inmueble[]': {
+required: "Debe seleccionar por lo menos un condominio"   
+},
+archivo: {
+required: "Debe seleccionar un archivo"
+}
+},
+highlight: function (element) {
+$(element).closest('.form-group').removeClass("has-success").addClass("has-error");
+},
+unhighlight : function(element) {
+$(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+},
+success: function (element) {
+$(element).parent().removeClass("has-error").addClass("has-success");
+}
+});
+});
+$("ul.nav-list li:eq(0)").addClass("open").addClass("active");
+$("ul.nav-list li:eq(1)").addClass("active");
+</script>
+{% endblock %}

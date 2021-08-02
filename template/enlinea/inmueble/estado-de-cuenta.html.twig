@@ -1,0 +1,115 @@
+{% extends 'layout/fluid.html.twig' %}
+{# TITULO #}
+{% block titulo accion|title ~ ' Estado de Cuenta Inmueble' %}
+
+{# JAVASCRIPT #}
+{% block head %}
+{{ parent() }}
+<script src="{{ constant("ROOT")}}js/printThis.js"></script>
+<script type="text/javascript" >
+    $(document).ready(function() {
+        $(".btn-primary").click(function() {
+            $(".span3").css("display",'none');
+            $(".span9").css("width",'100%');
+            $("#printable").printThis({
+                pageTitle : 'Estado de Cuenta ' + $(this).attr("title").toString()
+            });
+            $(".span3").css("display",'');
+            $(".span9").css("width",'870px');
+            return(false);
+        });
+    });
+</script>
+{% endblock %}
+
+{# CONTENIDO #}
+{% block contenido %}
+<div id="breadcrumbs" class="breadcrumbs breadcrumbs-fixed">
+<script type="text/javascript">
+try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+</script>
+<ul class="breadcrumb">
+<li>
+<i class="ace-icon fa fa-home home-icon"></i>
+<a href="{{constant('URL_SISTEMA')}}">{{ constant("NOMBRE_APLICACION")}}</a>
+</li>
+<li class="active">Estado de Cuenta Inmueble</li>
+</ul><!-- /.breadcrumb -->
+<div id="nav-search" class="nav-search">
+<form class="form-search">
+<span class="input-icon">
+<input type="text" autocomplete="off" id="nav-search-input" class="nav-search-input" placeholder="Buscar ...">
+<i class="ace-icon fa fa-search nav-search-icon"></i>
+</span>
+</form>
+</div><!-- /.nav-search -->
+</div>
+{% if resultado is defined %}
+    {% include 'misc/resultado.html.twig' %}
+    <div><a class="btn" href="{{ constant("URL_SISTEMA")}}/cliente">Volver al listado</a></div>
+{% else %}
+{% block sidebar %}
+{{ parent() }}
+{% endblock %}
+<div class="page-content">
+<div class="page-content-area">
+<div class="page-header">
+<h1>
+Estado de Cuenta<small>
+<i class="ace-icon fa fa-angle-double-right"></i>
+Inmueble
+</small>
+</h1>
+</div>
+</div>        
+<div class="accordion" id="accordion2">
+{% for cuenta in cuentas %}
+    <div class="accordion-group">
+        <h3 class="header smaller lighter red">
+        <i class="ace-icon fa fa-th-large"></i>
+        {{cuenta.inmueble.nombre_inmueble}}
+        </h3> 
+        <div id="collapseOne" class="accordion-body collapse in">
+            <div class="accordion-inner">
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit" title="{{cuenta.inmueble.nombre_inmueble}}">Imprimir</button>
+                </div>
+                <table  class="table table-bordered table-striped responsive-utilities">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center">{{cuenta.inmueble.unidad}}</th>
+                            <!--th style="text-align: center">Propietario</th-->
+                            <th style="text-align: center">RECIBOS PEND.</th>
+                            <th style="text-align: center">DEUDA {{cuenta.inmueble.moneda}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if cuenta.cuenta is empty %}
+                            <tr><td colspan="4"><div class="alert alert-error">
+                                    <strong>Atención!</strong> No se puede cargar esta información.</div></td></tr>
+                        {% else %}
+                            {% set total = 0 %}
+                            {% for detalle in cuenta.cuenta %}
+                                {% set total = total + detalle.deuda %}
+                                <tr>
+                                    <td style="text-align: center">{{detalle.apto}}</td>
+                                    <!--td>{#{ detalle.propietario }#}</td-->
+                                    <td style="text-align: center">{{detalle.recibos}}</td>
+                                    <td><span class="pull-right">{{format_number(detalle.deuda)}}</span></td>
+                                </tr>
+                            {% endfor %}
+                            <tr><td colspan="2"><strong>Total</strong></td><!--td><strong>Total:</strong></td-->
+                                    <td><span class="pull-right"><strong>{{format_number(total)}}</strong></span></td>
+                                </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>    
+{% endfor %}
+</div>
+ </div>
+{% endif %}
+{% endblock %}

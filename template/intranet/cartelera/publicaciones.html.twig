@@ -1,0 +1,88 @@
+{% extends 'layout/intra.html.twig'%}
+{% block titulo %}Publicar Cartelera{% endblock %}
+{% block contenido %}
+<div id="breadcrumbs" class="breadcrumbs breadcrumbs-fixed">
+<script type="text/javascript">
+try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
+</script>
+<ul class="breadcrumb">
+<li>
+<i class="ace-icon fa fa-home home-icon"></i>
+<a href="{{constant('ROOT')}}intranet.php">Intranet</a>
+</li>
+<li class="active">Publicaciones en Cartelera</li>
+</ul><!-- /.breadcrumb -->
+<div id="nav-search" class="nav-search">
+<form class="form-search">
+<span class="input-icon">
+<input type="text" autocomplete="off" id="nav-search-input" class="nav-search-input" placeholder="Buscar ...">
+<i class="ace-icon fa fa-search nav-search-icon"></i>
+</span>
+</form>
+</div><!-- /.nav-search -->
+</div>
+<div class="page-content">
+
+<div class="page-header">
+<h1>
+Publicaciones en Cartelera
+</h1>
+</div>
+
+<div class="row">
+<div class="col-xs-12">
+<div id="resultado" class="alert hidden"></div>
+<!-- PAGE CONTENT BEGINS -->
+<table  class="table table-bordered table-striped">
+<!--caption style="text-align: left;"><h4>{#{ cuenta.inmueble.nombre_inmueble }#}</h4></caption-->
+<thead>
+<tr>
+<th style="text-align: center">Titulo</th>
+<th style="text-align: center" >Contenido</th>
+<th style="text-align: center">Fecha<small>de Publicación</small></th>
+<th style="text-align: center">Acción</th>
+</tr>
+</thead>
+<tbody>
+{% if publicaciones %}
+{% for publicacion in publicaciones %}
+<tr>
+<td>{{ publicacion.titulo }}</td>
+<td><a href="{{constant('ROOT')}}intranet/archivos/{{publicacion.archivo}}" target="_blank">{{publicacion.archivo}}</a></td>
+<td>{{ publicacion.fecha|date("d/m/Y \\a \\l\\a\\s h:ia") }}</td>
+<td><a href="{{constant('URL_INTRANET')}}/?accion=eliminar-cartelera-general&id={{publicacion.id}}"><i class="ace-icon fa fa-trash-o bigger-130"></i> Eliminar</a></td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+<td colspan="4">No existen publicaciones registradas</td>
+</tr>
+{% endif %}
+</tbody>
+</table>
+</div><!-- /.col -->
+</div>
+</div>
+
+{% endblock %}
+{% block js %}
+{{ parent()}}
+<script src="{{constant('ROOT')}}js/jquery.inputlimiter.min.js"></script>
+<script src="{{constant('ROOT')}}js/chosen.jquery.min.js"></script>
+<script src="{{constant('ROOT')}}js/jquery-validate/jquery.validate.min.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+
+
+$(document).one('ajaxloadstart.page', function(e) {
+    autosize.destroy('textarea[class*=autosize]')
+
+    $('.limiterBox,.autosizejs').remove();
+    $('.daterangepicker.dropdown-menu,.colorpicker.dropdown-menu,.bootstrap-datetimepicker-widget.dropdown-menu').remove();
+});
+//$("ul.nav-list").find("li:eq(1)").addClass("active open");//
+$("ul.nav-list li:eq(0)").addClass("open").addClass("active");
+$("ul.nav-list li:eq(2)").addClass("active");
+});
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{
+    "cols":
+            [
+         {"label":"Facturaci\u00f3n Mensual","type":"string"},
+         {"label":"Monto","type":"number"}
+      ],
+    "rows":[
+        {"c":[{"v":"2014-05-01"},{"v":159713}]},
+        {"c":[{"v":"2014-06-01"},{"v":360667}]}
+      ]
+}
+
