@@ -19,16 +19,6 @@ while ($elemento = readdir($dir)){
             } else {
                 $e++;
             }
-//            // Muestro el fichero
-//            while (ob_get_level()) {
-//                ob_end_flush();
-//            }
-//            // start output buffering
-//            if (ob_get_length() === false) {
-//                ob_start();
-//            }
-//            echo "<br />".$path."/".$elemento." --> ".$r;
-            //if ($n == 1000)                break;
         }
     }
 }
