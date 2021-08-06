@@ -10,7 +10,7 @@ $accion = isset($_GET['accion']) ? $_GET['accion'] : "listar";
 $session = $_SESSION;
 
 switch ($accion) {
-    // <editor-fold defaultstate="collapsed" desc="junta-condominio">
+    
     case "junta-condominio": default :
         $prop = new propiedades();
         $inmuebles = new inmueble();
@@ -54,9 +54,8 @@ switch ($accion) {
             "resultado" => $resultado
         ));
         
-        break; // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="estado cuenta inmueble">
+        break; 
+    
     case "cuenta":
         $propiedad = new propiedades();
         $inmueble = new inmueble();
@@ -67,9 +66,9 @@ switch ($accion) {
             
             foreach ($propiedades['data'] as $propiedad) {
                 $bitacora->insertar(Array(
-                    "id_sesion"=>$session['id_sesion'],
-                    "id_accion"=>6,
-                    "descripcion"=>$propiedad['id_inmueble']." - ".$propiedad['apto'],
+                    'id_sesion'   => $session['id_sesion'],
+                    'id_accion'   => 6,
+                    'descripcion' => $propiedad['id_inmueble']." - ".$propiedad['apto'],
                 ));
                 if ($codigo_inmueble != $propiedad['id_inmueble']) {
                     
@@ -86,19 +85,19 @@ switch ($accion) {
         echo $twig->render('enlinea/inmueble/estado-de-cuenta.html.twig', array("session" => $session,
             "cuentas" => $cuentas
         ));
-        break; // </editor-fold>
+        break; 
     
-    // <editor-fold defaultstate="collapsed" desc="cartelera">
+    
     case "cartelera":
         echo $twig->render('enlinea/inmueble/cartelera.html.twig', array("session" => $session));
-        break; // </editor-fold>
+        break; 
 
-    // <editor-fold defaultstate="collapsed" desc="facturacion_flot">
+    
     case "facturacion_flot":
         $inmuebles = new inmueble();
         $total = totalPeriodosFacturados();
-        echo $total;
-        die($total);
+        // echo $total;
+        // die($total);
         $facturacion = $inmuebles->movimientoFacturacionMensual();
         $rows = array();
         $table = array();
@@ -114,33 +113,37 @@ switch ($accion) {
         $table['data'] = $rows;
         $jsonTable = json_encode($table);
         echo $jsonTable;
-        break; // </editor-fold>
+        break; 
 
-    // <editor-fold defaultstate="collapsed" desc="facturacion google">
     case "facturacion":
         $inmuebles = new inmueble();
         $propiedad = new propiedades();
+
         $propiedades = $propiedad->inmueblePorPropietario($_SESSION['usuario']['cedula']);
         
         if ($propiedades['suceed']) {
-             $total = $inmuebles->totalPeriodosFacturados($propiedades['data'][0]['id_inmueble']);
+             
+            $total = $inmuebles->totalPeriodosFacturados( $propiedades['data'][0]['id_inmueble'] );
             
-            $facturacion = $inmuebles->movimientoFacturacionMensual($propiedades['data'][0]['id_inmueble'],$total);
+            $facturacion = $inmuebles->movimientoFacturacionMensual( $propiedades['data'][0]['id_inmueble'],$total );
             
             if ($facturacion['suceed']) {
+                
                 $rows = array();
                 $table = array();
                 $table['cols'] = array(
                     array('label' => 'Facturación Mensual', 'type' => 'string'),
-                    array('label' => 'Bolívares', 'type' => 'number')
+                    array('label' => $facturacion['data'][0]['moneda'], 'type' => 'number')
                 );
                 foreach ($facturacion['data'] as $r) {
+
                     $temp = array();
                     $temp[] = array('v' => (string) Misc::date_periodo_format($r['periodo']));
 
                     $temp[] = array('v' => (float) $r['facturado']);
 
                     $rows[] = array('c' => $temp);
+
                 }
                 $table['rows'] = $rows;
                 $jsonTable = json_encode($table);
@@ -148,24 +151,26 @@ switch ($accion) {
         }
         echo $jsonTable;
         
-        break; // </editor-fold>
+        break; 
         
-    // <editor-fold defaultstate="collapsed" desc="cobranza">
+    
     case "cobranza":
         $inmuebles = new inmueble();
         $propiedad = new propiedades();
         $propiedades = $propiedad->inmueblePorPropietario($_SESSION['usuario']['cedula']);
-        $rows = array();
-        $table = array();
-        $table['cols'] = array(
-            array('label' => 'Facturación Mensual', 'type' => 'string'),
-            array('label' => 'Bolívares', 'type' => 'number')
-        );
+        
         if ($propiedades['suceed']) {
         
             $facturacion = $inmuebles->movimientoCobranzaMensual($propiedades['data'][0]['id_inmueble']);
             
             if ($facturacion['suceed']) {
+
+                $rows = array();
+                $table = array();
+                $table['cols'] = array(
+                    array('label' => 'Facturación Mensual', 'type' => 'string'),
+                    array('label' => $facturacion['data'][0]['moneda'], 'type' => 'number')
+                );
             
                 foreach ($facturacion['data'] as $r) {
                     $temp = array();
@@ -182,9 +187,7 @@ switch ($accion) {
        $jsonTable = json_encode($table);
         echo $jsonTable;
         break; 
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Listar cuentas de fondos">
     case "listarCuentasDeFondo":
         $fondo = new fondo();
         $inmueble = new inmueble();
@@ -218,14 +221,14 @@ switch ($accion) {
         }
         
         echo $twig->render('enlinea/inmueble/fondos.html.twig', array(
-            "session" => $session,
-            "propiedades" => $propiedades['data'],
-            "id_inmueble" => $id_inmueble,
-            "fondos" => $fondos,
-            "movimientos"=>$m,
-            "cuenta"=>$cuenta
+            'session'       => $session,
+            'propiedades'   => $propiedades['data'],
+            'id_inmueble'   => $id_inmueble,
+            'fondos'        => $fondos,
+            'movimientos'   => $m,
+            'cuenta'        => $cuenta
         ));
-        break; // </editor-fold>
+        break; 
 
     case "imprimircuenta":
         break;

@@ -20,16 +20,16 @@ if ($propiedades['suceed'] == true) {
     $cartelera->tabla="cartelera_inmueble";
     foreach ($propiedades['data'] as $propiedad) {
         $resultado = $cartelera->listarCarteleraInmueble($propiedad['id_inmueble']);
-        array_push($cartelera_inmueble, $resultado['data']);
+        array_push( $cartelera_inmueble, $resultado['data'] );
     }
 }
 
 switch ($accion) {
     default :
         echo $twig->render('enlinea/index.html.twig', array(
-            "session" => $session,
-            "fecha_actualizacion" => $fecha_actualizacion,
-            "publicaciones"=> $cartelera_inmueble
+            'session'               => $session,
+            'fecha_actualizacion'   => $fecha_actualizacion,
+            'publicaciones'         => $cartelera_inmueble
             ));
         break;
 }

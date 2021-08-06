@@ -24,7 +24,7 @@ var data = new google.visualization.DataTable(data_facturacion);
 var options = {
 legend: "none",
 height: 200,
-vAxis: {title: 'Miles de Bolívares'},
+vAxis: {title: ''},
 hAxis: {title: "Últimos períodos facturados"},
 colors: ['#d15b47', '#d15b47', '#ec8f6e', '#f3b49f', '#f6c7b6'],
 bar: {groupWidth: "95%"}
@@ -33,7 +33,7 @@ bar: {groupWidth: "95%"}
 var options1 = {
 legend: "none",
 height: 200,
-vAxis: {title: 'Miles de Bolívares'},
+vAxis: {title: ''},
 hAxis: {title: "Cobranza Últimos meses"},
 colors: ['#fee074', '#fee074', '#ec8f6e', '#f3b49f', '#f6c7b6'],
 bar: {groupWidth: "95%"}
@@ -64,7 +64,7 @@ try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}
 <ul class="breadcrumb">
 <li>
 <i class="ace-icon fa fa-home home-icon"></i>
-<a href="{{constant('URL_SISTEMA')}}">{{ constant("NOMBRE_APLICACION")}}</a>
+<a href="{{constant('URL_SISTEMA')}}">{{constant("NOMBRE_APLICACION")}}</a>
 </li>
 <li class="active">Inicio</li>
 </ul><!-- /.breadcrumb -->

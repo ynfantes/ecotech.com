@@ -57,16 +57,17 @@ class inmueble extends db implements crud {
     }
     
     public function movimientoFacturacionMensual($inmueble,$total=null) {
-        $query = "select facturacion_mensual.*, inmueble.nombre_inmueble from facturacion_mensual join inmueble ON facturacion_mensual.id_inmueble = inmueble.id where id_inmueble='$inmueble' and periodo >= date_add((select max(periodo) from facturacion_mensual where id_inmueble='$inmueble'), INTERVAL -5 MONTH) order by periodo ASC";
+        $query = "select facturacion_mensual.*, inmueble.nombre_inmueble, inmueble.moneda 
+        from facturacion_mensual join inmueble 
+        ON facturacion_mensual.id_inmueble = inmueble.id 
+        where id_inmueble='$inmueble' and periodo >= date_add(
+            (select max(periodo) 
+            from facturacion_mensual 
+            where id_inmueble='$inmueble'), INTERVAL -5 MONTH) 
+            order by periodo ASC";
         return db::query($query);
-//        $consulta = "select * from facturacion_mensual ";
-//        if ($total > 6) {
-//            $inicio = $total - 6;
-//            $consulta.= "LIMIT $inicio ,$total";
-//        }
-//        return $this->query($consulta);
-//        //return db::select("*","facturacion_mensual",array("id_inmueble"=>$inmueble),"",Array("periodo" =>"asc"));
     }
+    
     public function totalPeriodosFacturados($inmueble) {
         $consulta = "select count(*) as total from facturacion_mensual";
         $r = $this->query($consulta);
@@ -74,8 +75,10 @@ class inmueble extends db implements crud {
         return $r['data'][0]['total'];
     }
     public function movimientoCobranzaMensual($inmueble) {
-        //return db::select("*","cobranza_mensual",array("id_inmueble"=>$inmueble),"",Array("periodo" =>"asc"));
-        $query = "select cobranza_mensual.*,inmueble.nombre_inmueble from cobranza_mensual join inmueble on cobranza_mensual.id_inmueble = inmueble.id where id_inmueble='$inmueble' and periodo >= date_add((select max(periodo) from facturacion_mensual where id_inmueble='$inmueble'), INTERVAL -5 MONTH) order by periodo ASC";
+        $query = "select cobranza_mensual.*,inmueble.nombre_inmueble, inmueble.moneda 
+        from cobranza_mensual join inmueble 
+        on cobranza_mensual.id_inmueble = inmueble.id 
+        where id_inmueble='$inmueble' and periodo >= date_add((select max(periodo) from facturacion_mensual where id_inmueble='$inmueble'), INTERVAL -5 MONTH) order by periodo ASC";
         return db::query($query);
     }
     
