@@ -12,7 +12,7 @@ $bitacora = new bitacora();
 
 switch ($accion) {
     
-    // <editor-fold defaultstate="collapsed" desc="cancelacion">
+    
     case "cancelacion":
         $titulo = $_GET['id'] . ".pdf";
         $content = 'Content-type: application/pdf';
@@ -21,9 +21,7 @@ switch ($accion) {
         header($content);
         readfile($url);
         break;
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="listarRecibosCancelados">
     case "listarRecibosCancelados":
         $propiedad = new propiedades();
         $inmuebles = new inmueble();
@@ -67,9 +65,7 @@ switch ($accion) {
 
 
         break; 
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="ver">
     case "ver":
         $propiedad = new propiedades();
         $inmuebles = new inmueble();
@@ -112,18 +108,17 @@ switch ($accion) {
             "cuentas" => $cuenta));
 
 
-        break; // </editor-fold>
+        break; 
     
-    // <editor-fold defaultstate="collapsed" desc="guardar">
     case "guardar":
         $pago = new pago();
         $data = $_POST;
         if (isset($_FILES['soporte'])) {
-            $file = explode(".",$_FILES['soporte']['name']);
-            $extension = strtolower(end($file));
-            $data['soporte']=$data['tipo_pago'].$data['numero_documento'].'_'.$data['id_inmueble'][0].'_'.$data['id_apto'][0].'.'.$extension;
-            $tempFile = $_FILES['soporte']['tmp_name'];
-            $mainFile = $data['soporte'];
+            $file             = explode(".",$_FILES['soporte']['name']);
+            $extension        = strtolower(end($file));
+            $data['soporte']  = $data['tipo_pago'].$data['numero_documento'].'_'.$data['id_inmueble'][0].'_'.$data['id_apto'][0].'.'.$extension;
+            $tempFile         = $_FILES['soporte']['tmp_name'];
+            $mainFile         = $data['soporte'];
             move_uploaded_file($tempFile,"soportes/".$mainFile);
         }
         
@@ -137,14 +132,8 @@ switch ($accion) {
         }
         
         echo json_encode($exito);
-        //echo $twig->render('enlinea/pago/formulario.html.twig', array("session" => $session,
-        //    "resultado" => $exito,
-        //    "accion" => "registrar"
-        //));
         break;
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="registrar">
         case "registrar":
         case "listar":
         default :
@@ -214,18 +203,15 @@ switch ($accion) {
                 }
             }
         }
-        //var_dump($cuenta[0]['inmueble']['cuentas_bancarias']);
         echo $twig->render('enlinea/pago/formulario.html.twig', array("session" => $session,
-        "cuentas" => $cuenta,
-        "accion" => $accion,
-        "usuario"=>$session['usuario'],
-        "propiedades"=>$propiedades['data'],
-        "bancos" => $bancos
+            'cuentas'   => $cuenta,
+            'accion'    => $accion,
+            'usuario'   => $session['usuario'],
+            'propiedades'=> $propiedades['data'],
+            'bancos'    => $bancos
         ));
         break; 
-// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="listaPagoDetalle">
     case "listaPagosDetalle":
         $pagos = new pago();
         $pago_detalle = $pagos->detalleTodosPagosPendientes();
@@ -241,9 +227,7 @@ switch ($accion) {
             }
         }
         break;  
-// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="listaPagosMaestros">
     case "listaPagosMaestros":
         $pagos = new pago();
         $pagos_maestro = $pagos->listarPagosPendientes();
@@ -269,9 +253,7 @@ switch ($accion) {
             }
         }
         break; 
-// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="listaPagosPendientes">
     case "listarPagosPendientes":
         $pagos = new pago();
         $pagos_maestro = $pagos->listarPagosPendientes();
@@ -317,22 +299,18 @@ switch ($accion) {
         }
 
 
-        break; // </editor-fold>
+        break; 
 
-    // <editor-fold defaultstate="collapsed" desc="confirmación de pago">
     case "confirmar":
-
-
         $pago = new pago();
-        $id = $_GET['id'];
-        $estatus = $_GET['estatus'];
-        $recibo = isset($_GET['recibo'])? $_GET['recibo']:null;
+        $id         = $_GET['id'];
+        $estatus    = $_GET['estatus'];
+        $recibo     = isset($_GET['recibo'])? $_GET['recibo']:null;
         
         $r = $pago->procesarPago($id, $estatus,$recibo);
         echo $r;
-        break; // </editor-fold>
+        break; 
 
-    // <editor-fold defaultstate="collapsed" desc="actualizar factura">
     case "actualizar_factura":
 
         if (isset($_GET['inmueble']) && isset($_GET['apto']) && isset($_GET['id']) && isset($_GET['monto'])) {
@@ -348,9 +326,7 @@ switch ($accion) {
         
         }
         break; 
-    // </editor-fold>
-        
-    // <editor-fold defaultstate="collapsed" desc="mantenimiento-soportes">
+    
     case "mantenimiento-soportes":
         $path = getcwd();
         $path .= '/soportes';
@@ -388,5 +364,4 @@ switch ($accion) {
         echo "$n archivos en este directorio.<br>";
         echo "$e archivos eliminados";
         break; 
-    // </editor-fold>
 }

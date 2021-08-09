@@ -9,12 +9,12 @@ if (isset($_GET['accion'])) {
     
         // <editor-fold defaultstate="collapsed" desc="mensaje pagina contacto">
         case "email_contacto":
-            $mail = new mailto(SMTP);
+            $mail = new mailto(mailPHP);
             $mensaje = sprintf($ini['CUERPO_CONTACTO_SINTESIS'], $_POST['name'],$_POST['email'],$_POST['message']);
             $r = $mail->enviar_email($ini['ASUNTO_CONTACTO'], $mensaje, "", USER_MAIL);
 
             if ($r == "") {
-                $mail = new mailto(SMTP);
+                $mail = new mailto(mailPHP);
                 $mensaje = $ini['CUERPO_CONTACTO'];
 
                 $r = $mail->enviar_email($ini['ASUNTO_CONTACTO'], $mensaje, "", $_POST['email']);
@@ -30,13 +30,13 @@ if (isset($_GET['accion'])) {
         case "email_soporte":
             session_start();
             if (isset($_POST['email']) && isset($_SESSION['usuario']['cedula'])) {
-                $mail = new mailto(SMTP);
+                $mail = new mailto(mailPHP);
                 $mensaje = sprintf($ini['CUERPO_SOPORTE'], $_POST['name'], NOMBRE_APLICACION,$_POST['email'], 
                         $_SESSION['usuario']['cedula'],$_POST['message']);
                 $r = $mail->enviar_email("Soporte ".NOMBRE_APLICACION, $mensaje, "Síntesis en línea", "info@sintesisonline.com.ve");
 
                 if ($r == "") {
-                    $mail = new mailto(SMTP);
+                    $mail = new mailto(mailPHP);
                     $mensaje = $ini['CUERPO_CONTACTO'];
 
                     $r = $mail->enviar_email("Soporte página web", $mensaje, "", $_POST['email']);
@@ -53,7 +53,7 @@ if (isset($_GET['accion'])) {
         
         // <editor-fold defaultstate="collapsed" desc="contacto_propiedad">
         case "contacto_propiedad":
-            $mail = new mailto(SMTP);
+            $mail = new mailto(mailPHP);
             $mensaje = sprintf($ini['CUERPO_CONTACTO_PROPIEDAD'],
                     $_POST['nombre'],
                     $_POST['titulo'], 
@@ -64,7 +64,7 @@ if (isset($_GET['accion'])) {
             $r = $mail->enviar_email('Información ' . $_POST['titulo'], $mensaje, "", "bienesraices@mpinmuebles.com");
 
             if ($r == "") {
-                $mail = new mailto(SMTP);
+                $mail = new mailto(mailPHP);
                 $mensaje = $ini['CUERPO_CONTACTO'];
 
                 $r = $mail->enviar_email($ini['ASUNTO_CONTACTO'], $mensaje, "", $_POST['email']);
@@ -79,7 +79,7 @@ if (isset($_GET['accion'])) {
         
         // <editor-fold defaultstate="collapsed" desc="compartir_propiedad">
         case "compartir_propiedad":
-            $mail = new mailto(SMTP);
+            $mail = new mailto(mailPHP);
             if (isset($_POST['de']) && isset($_POST['email']) && isset($_POST['de']) && isset($_POST['url']) && isset($_POST['titulo'])) {
                 $mensaje = $_POST['mensaje'] . "<br>" . $_POST['titulo'] . "<br>" . $_POST['url'];
                 $r = $mail->enviar_email($_POST['de'] . " ha compartido contigo una propiedad de mpinmuebles.com", $mensaje, "", $_POST['email']);

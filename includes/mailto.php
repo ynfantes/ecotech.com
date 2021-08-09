@@ -92,7 +92,7 @@ class mailto {
         $this->mail->Subject = $asunto;
         $this->mail->AltBody = $textoAlternativo;
         $this->mail->MsgHTML($mensaje);
-        //var_dump($attach);
+
         if ($attach != null ) {
             foreach ($attach as $value) {
                 //echo $value;
@@ -100,13 +100,11 @@ class mailto {
             }
         }
         
-        //$this->mail->AddAttachment("files/files.zip");
-        //$this->mail->AddAttachment("files/img03.jpg");
         if (DEMO == 1) {
             $this->mail->AddAddress('ynfantes@gmail.com','Edgar Messia');
         } else {
             $this->mail->AddAddress($emailDestinatario, $nombreDestinatario);
-            $this->mail->AddBCC("ynfantes@gmail.com","Edgar Messia");
+            $this->mail->AddBCC('tucondominioeco@gmail.com','Administradora Ecotech');
         }
         
         $this->mail->IsHTML(true);

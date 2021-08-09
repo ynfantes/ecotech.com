@@ -50,10 +50,10 @@ class pago extends db implements crud {
     
     public function pagoYaRegistrado($data) {
         return $this->select("*", self::tabla, Array(
-            "tipo_pago"=>$data['tipo_pago'],
-            "numero_documento"=>$data['numero_documento'],
-            "numero_cuenta"=>$data['numero_cuenta'],
-            "banco_destino"=>$data['banco_destino']));
+            'tipo_pago'         => $data['tipo_pago'],
+            'numero_documento'  => $data['numero_documento'],
+            'numero_cuenta'     => $data['numero_cuenta'],
+            'banco_destino'     => $data['banco_destino']));
     }
 
     public function listarPagosPendientes(){
@@ -117,12 +117,12 @@ class pago extends db implements crud {
                         $j = (int)$pago_detalle['id'][$i];
                         
                         $resultado_detalle = $this->insert("pago_detalle", Array(
-                            "id_pago" => $id_pago, 
-                            "id_factura" => $pago_detalle['id_factura'][$j],
-                            "id_inmueble" => $pago_detalle['id_inmueble'][$j],
-                            "id_apto" => $pago_detalle['apto'][$j],
-                            "monto" => $pago_detalle['monto'][$j],
-                            "periodo"=>  Misc::format_mysql_date($pago_detalle['periodo'][$j])));
+                            "id_pago"       => $id_pago, 
+                            "id_factura"    => $pago_detalle['id_factura'][$j],
+                            "id_inmueble"   => $pago_detalle['id_inmueble'][$j],
+                            "id_apto"       => $pago_detalle['apto'][$j],
+                            "monto"         => $pago_detalle['monto'][$j],
+                            "periodo"       => Misc::format_mysql_date($pago_detalle['periodo'][$j])));
                         
                         unset($resultado_detalle['query']);
                         
@@ -138,7 +138,7 @@ class pago extends db implements crud {
                             $resultado['mensaje'] = "<strong>Pago proceso con éxito!</strong> En un plazo máximo de 48 horas será aplicado a su cuenta de condominio.";
                             // se envia el email de confirmación
                             $ini = parse_ini_file('emails.ini');
-                            $mail = new mailto(SMTP);
+                            $mail = new mailto(mailPHP);
                             $propietario = $_SESSION['usuario']['nombre']=='cajerocaracas'? 'Propietario(a)':$_SESSION['usuario']['nombre'];
                             switch (strtoupper($data['tipo_pago'])) {
                                 case 'D':
@@ -164,6 +164,7 @@ class pago extends db implements crud {
                                     Misc::number_format($data['monto']),
                                     Misc::date_format($data['fecha_documento']),
                                     $data['email'],'');
+
                             $mensaje.=$ini['PIE_MENSAJE_PAGO'];
                             
                             $r = $mail->enviar_email("Pago de Condominio", $mensaje, "", $data['email']);
@@ -214,18 +215,20 @@ class pago extends db implements crud {
         $this->actualizar($id, array("estatus"=>$estatus));
         $r = $this->ver($id);
         if ($r['suceed']==true) {
-            if (count($r['data'])>0) {
+
+            if ( count($r['data'])>0 ) {
+
                 $tipo_pago = $r['data'][0]['tipo_pago'] == 'd' ? "DEPOSITO" : "TRANSFERENCIA";
                 $data = Array(
-                    "administradora"=>TITULO,
-                    "forma_pago"=>$tipo_pago,
-                    "numero_documento"=>$r['data'][0]['numero_documento'],
-                    "banco"=>$r['data'][0]['banco_destino'],
-                    "cuenta"=>$r['data'][0]['numero_cuenta'],
-                    "monto"=>$r['data'][0]['monto'],
-                    "fecha"=>$r['data'][0]['fecha'],
-                    "email"=>$r['data'][0]['email'],
-                    "recibo"=>$recibo
+                    'administradora'   => TITULO,
+                    'forma_pago'       => $tipo_pago,
+                    'numero_documento' => $r['data'][0]['numero_documento'],
+                    'banco'            => $r['data'][0]['banco_destino'],
+                    'cuenta'           => $r['data'][0]['numero_cuenta'],
+                    'monto'            => $r['data'][0]['monto'],
+                    'fecha'            => $r['data'][0]['fecha'],
+                    'email'            => $r['data'][0]['email'],
+                    'recibo'           => $recibo
                     );
                 return $this->enviarEmailPagoProcesado($id, $estatus,$data);
             }
@@ -239,7 +242,7 @@ class pago extends db implements crud {
         $data = $this->ver($id);
         if ($data['suceed'] == TRUE && count($data['data'])>0) {
             $ini = parse_ini_file('emails.ini');
-            $mail = new mailto(SMTP);
+            $mail = new mailto(mailPHP);
             $propietario = 'Propietario(a)';
             $forma_pago = $data['data'][0]['tipo_pago']=='d'? 'DEPOSITO':'TRANSFERENCIA';
             $mensaje = sprintf($ini['CUERPO_MENSAJE_PAGO_RECEPCION_CONFIRMACION'], 
@@ -268,7 +271,7 @@ class pago extends db implements crud {
     
     public function enviarEmailPagoProcesado($id,$estatus,$data) {
         $ini = parse_ini_file('emails.ini');
-        $mail = new mailto(SMTP);
+        $mail = new mailto(mailPHP);
         
         $s = $estatus=='A' ? "CONFIRMACION" : "RECHAZO";
         $m = $estatus=='A' ? "CONFIRMACION" : "RECHAZO";
@@ -285,10 +288,8 @@ class pago extends db implements crud {
                 $ini['CUENTA_PAGOS']
                 );
         
-        //$adjunto="";
         $can = array();
         
-        // <editor-fold defaultstate="collapsed" desc="si el pago es aplicado">
         if ($estatus == 'A') {
           
             if (RECIBO_GENERAL==1) {
@@ -314,7 +315,7 @@ class pago extends db implements crud {
                     }
                 }
             }
-        }// </editor-fold>
+        }
         
         $mensaje.= $ini['PIE_MENSAJE_PAGO'];
         

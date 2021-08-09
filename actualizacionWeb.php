@@ -542,7 +542,7 @@ $fecha = JFILE::read(ACTUALIZ."ACTUALIZACION.txt");
 echo "****FIN DEL PROCESO DE ACTUALIZACION****<br />";
 echo "Fecha: ".$fecha."<br/>";
 $mensaje.="Fecha: ".$fecha;
-$mail = new mailto(SMTP);
+$mail = new mailto(mailPHP);
 $r = $mail->enviar_email("Actualización Dichirolamo en Línea ".$fecha,$mensaje, "", 'jesusvelasquez757@gmail.com',"");
         
 if ($r=="") {

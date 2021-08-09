@@ -2,7 +2,7 @@
 include 'mailto.php';
 // se envia el email de confirmación
 $ini = parse_ini_file('emails.ini');
-$mail = new mailto(SMTP);
+$mail = new mailto(mailPHP);
 
 $propietario = "edgar";
 $forma_pago = 'DEPOSITO';
