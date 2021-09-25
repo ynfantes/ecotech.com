@@ -85,28 +85,29 @@ class pago extends db implements crud {
             if ($res['suceed'] && !count($res['data']) > 0 ) {
                 
                 $pago_detalle = Array();
-                $pago_detalle['id_factura'] = $data['facturas'];
+                $pago_detalle['id_factura']  = $data['facturas'];
                 $pago_detalle['id_inmueble'] = $data['id_inmueble'];
-                $pago_detalle['apto'] = $data['id_apto'];
-                $pago_detalle['monto'] = $data['montos'];
-                $pago_detalle['periodo']= $data['periodo'];
-                $pago_detalle['id']=$data['id'];
+                $pago_detalle['apto']        = $data['id_apto'];
+                $pago_detalle['monto']       = $data['montos'];
+                $pago_detalle['periodo']     = $data['periodo'];
+                $pago_detalle['id']          = $data['id'];
                 
                 unset($data['facturas'], $data['montos'], $data['id_inmueble'], $data['id_apto'],$data['periodo'],$data['id']);
                 
-                $data['fecha_documento'] = Misc::format_mysql_date($data['fecha_documento']);
-                $data['monto'] = Misc::format_mysql_number($data['monto']);
-                $data['tipo_pago'] = strtoupper($data['tipo_pago']);
-                $data['banco_destino'] = strtoupper($data['banco_destino']);
+                $data['fecha_documento']    = Misc::format_mysql_date($data['fecha_documento']);
+                $data['monto']              = Misc::format_mysql_number($data['monto']);
+                $data['tipo_pago']          = strtoupper($data['tipo_pago']);
+                $data['banco_destino']      = strtoupper($data['banco_destino']);
                 
                 if (isset($data['banco_origen'])) {
-                    $data['banco_origen'] = strtoupper($data['banco_origen']);
+                    $data['banco_origen']   = strtoupper($data['banco_origen']);
                 }
                 
-                $data['numero_cuenta'] = str_replace(" ", "", $data['numero_cuenta']);
+                $data['numero_cuenta']      = str_replace(" ", "", $data['numero_cuenta']);
                 
-                $resultado['pago'] = $this->insertar($data);
+                $resultado['pago']          = $this->insertar($data);
                 unset($resultado['pago']['query']);
+                
                 if ($resultado['pago']['suceed']) {
 
                     $id_pago = $resultado['pago']['insert_id'];
@@ -117,12 +118,12 @@ class pago extends db implements crud {
                         $j = (int)$pago_detalle['id'][$i];
                         
                         $resultado_detalle = $this->insert("pago_detalle", Array(
-                            "id_pago"       => $id_pago, 
-                            "id_factura"    => $pago_detalle['id_factura'][$j],
-                            "id_inmueble"   => $pago_detalle['id_inmueble'][$j],
-                            "id_apto"       => $pago_detalle['apto'][$j],
-                            "monto"         => $pago_detalle['monto'][$j],
-                            "periodo"       => Misc::format_mysql_date($pago_detalle['periodo'][$j])));
+                            'id_pago'       => $id_pago, 
+                            'id_factura'    => $pago_detalle['id_factura'][$j],
+                            'id_inmueble'   => $pago_detalle['id_inmueble'][$j],
+                            'id_apto'       => $pago_detalle['apto'][$j],
+                            'monto'         => $pago_detalle['monto'][$j],
+                            'periodo'       => Misc::format_mysql_date($pago_detalle['periodo'][$j])));
                         
                         unset($resultado_detalle['query']);
                         

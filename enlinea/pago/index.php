@@ -124,7 +124,7 @@ switch ($accion) {
         
         if (count($data) > 0) {
             unset($data['registrar']);
-            $data['fecha']=date("Y-m-d H:i:00 ", time());
+            $data['fecha'] = date("Y-m-d H:i:00 ", time());
             $exito = $pago->registrarPago($data);
         } else {
             header("location:" . URL_SISTEMA . "/pago/registrar");
