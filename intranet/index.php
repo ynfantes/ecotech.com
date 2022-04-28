@@ -6,7 +6,6 @@ $id = isset($_GET['id']) ? $_GET['id'] : -1;
 
 switch ($accion) {
 
-    // <editor-fold defaultstate="collapsed" desc="lista propietarios por inmueble">
     case "listarPropietariosPorInmueble" :
         if (isset($_POST['id_inmueble'])) {
             $pro = new propietario();
@@ -23,16 +22,14 @@ switch ($accion) {
           }
 
 
-        break; // </editor-fold>
+        break; 
           
-    // <editor-fold defaultstate="collapsed" desc="salir">
     case "salir":
         
         $user_logout = new usuario();
         $user_logout->logout();
-        break; // </editor-fold>
+        break; 
         
-    // <editor-fold defaultstate="collapsed" desc="guardar">
     case "guardar":
         $pago = new pago();
         $data = $_POST;
@@ -51,9 +48,7 @@ switch ($accion) {
             "accion" => "registrar"
         ));
         break;
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="guardar-cartelera">
     case "guardar-cartelera":
         $result = Array();
         $data = Array();
@@ -85,9 +80,7 @@ switch ($accion) {
         }
         echo json_encode($result);
         break; 
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="cartelera general">
     case "cartelera-general":
         $cartelera = new cartelera();
         $publicaciones = $cartelera->listar();
@@ -98,9 +91,8 @@ switch ($accion) {
             "publicaciones" => $publicaciones['data'],
             "id" => $id
         ));
-        break; // </editor-fold>
+        break; 
         
-    // <editor-fold defaultstate="collapsed" desc="eliminar-cartelera-general">
     case "eliminar-cartelera-general":
         $data = Array();
         $cartelera = new cartelera();
@@ -113,9 +105,7 @@ switch ($accion) {
         
         echo $twig->render('intranet/cartelera/publicaciones.html.twig', Array("publicaciones" => $publicaciones['data']));
         break; 
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="eliminar-cartelera-condomino">
     case "eliminar-cartelera-condominio":
         $data = Array();
         $cartelera = new cartelera();
@@ -126,9 +116,8 @@ switch ($accion) {
         }
         $publicaciones = $cartelera->listar();
         echo $twig->render('intranet/cartelera/publicaciones.html.twig', Array("publicaciones" => $publicaciones['data']));
-        break; // </editor-fold>
+        break; 
             
-    // <editor-fold defaultstate="collapsed" desc="listar-cartelera-general">
     case "listar-cartelera-general":
         $cartelera = new cartelera();
         $cartelera->tabla = "cartelera_inmueble";
@@ -136,9 +125,7 @@ switch ($accion) {
 
         echo $twig->render('intranet/cartelera/publicaciones.html.twig', Array("publicaciones" => $publicaciones['data']));
         break; 
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="cartelera condominio">
     case "cartelera-condominio":
         $cartelera = new cartelera();
         $inmueble = new inmueble();
@@ -157,9 +144,8 @@ switch ($accion) {
             "id" => $id,
             "inmuebles" => $lista_inm['data']
         ));
-        break; // </editor-fold>
+        break; 
         
-    // <editor-fold defaultstate="collapsed" desc="consultar">
     case "consultar":
         
         if (isset($_POST['inmueble']) && isset($_POST['apto'])) {
@@ -195,15 +181,17 @@ switch ($accion) {
             "cuentas" => $cuenta,
             "inmuebles"=> $lista_inm['data']
         ));
-        break; // </editor-fold>
+        break; 
 
-    // <editor-fold defaultstate="collapsed" desc="default">
     default :
         
         $inmueble = new inmueble();
         $lista_inm = $inmueble->listar();
         
-        echo $twig->render('intranet.html.twig',Array("condominios"=>$lista_inm['data']));
-        break; // </editor-fold>
+        echo $twig->render(
+            'intranet.html.twig',
+            Array('condominios' => $lista_inm['data'])
+        );
+        break; 
 
 }

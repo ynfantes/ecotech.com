@@ -311,9 +311,9 @@ class pago extends db implements crud {
                         }
                     }
                     $mensaje.= "Hemos adjuntado " . $n . " factura(s).";
-                    if ($n < count($r['data'])) {
-                        $mensaje . -"<br>Falta(ron) factura(s) por adjuntar.";
-                    }
+                    // if ($n < count($r['data'])) {
+                    //     $mensaje . -"<br>Falta(ron) factura(s) por adjuntar.";
+                    // }
                 }
             }
         }

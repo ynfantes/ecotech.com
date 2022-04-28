@@ -264,7 +264,7 @@ switch ($accion) {
 
                 $pago_detalle = $pagos->detallePagoPendiente($pago['id']);
 
-                if ($pago_detalle['suceed'] && count($pago_detalle['data'] > 0)) {
+                if ($pago_detalle['suceed'] && count($pago_detalle['data']) > 0) {
                     $enviado = $pago["enviado"] == 0 ? "False" : "True";
                     echo "|" . $pago['id'] . "|";
                     echo Misc::date_format($pago['fecha']) . "|";
