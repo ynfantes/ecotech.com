@@ -1,8 +1,7 @@
 <?php
 require dirname(dirname(dirname(__FILE__))).'/vendor/autoload.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+include 'phpmailer/phpmailer.php';
+include 'phpmailer/smtp.php';
 //include_once 'constants.php';
 /**
  * Description of mailto
