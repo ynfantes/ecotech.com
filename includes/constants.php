@@ -33,7 +33,7 @@ define("sendMail",1);
 define("SMTP",2);
 define("PROGRAMA_CORREO",SMTP);
 
-include_once 'includes/twig/lib/Twig/Autoloader.php';
+include_once 'twig/lib/Twig/Autoloader.php';
 include_once SERVER_ROOT.'includes/extensiones.php';
 Twig_Autoloader::register();
 
