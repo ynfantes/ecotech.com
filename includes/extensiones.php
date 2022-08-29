@@ -1,6 +1,6 @@
 <?php
-include_once 'includes/twig/lib/Twig/ExtensionInterface.php';
-include_once 'includes/twig/lib/Twig/Extension.php';
+include_once 'twig/lib/Twig/ExtensionInterface.php';
+include_once 'twig/lib/Twig/Extension.php';
 
 class extensiones extends Twig_Extension {
 
