@@ -1,5 +1,4 @@
 <?php
-require dirname(dirname(dirname(__FILE__))).'/vendor/autoload.php';
 include 'phpmailer/phpmailer.php';
 include 'phpmailer/smtp.php';
 //include_once 'constants.php';
